@@ -1,14 +1,12 @@
 
 import React, { useState } from 'react';
-import { Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { Text, View, ScrollView, Alert } from 'react-native';
 import { commonStyles, colors } from '../styles/commonStyles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAttendance } from '../hooks/useAttendance';
 import QRScanner from '../components/QRScanner';
 import AttendanceCard from '../components/AttendanceCard';
-import Icon from '../components/Icon';
 import Button from '../components/Button';
-import { Link } from 'expo-router';
 
 export default function MainScreen() {
   const [showScanner, setShowScanner] = useState(false);
@@ -107,19 +105,7 @@ export default function MainScreen() {
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={{ padding: 20, alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: 10 }}>
-            <View style={{ flex: 1 }} />
-            <View style={{ flex: 1, alignItems: 'center' }}>
-              <Text style={commonStyles.title}>Anwesenheit</Text>
-            </View>
-            <View style={{ flex: 1, alignItems: 'flex-end' }}>
-              <Link href="/admin" asChild>
-                <TouchableOpacity style={{ padding: 8 }}>
-                  <Icon name="settings" size={24} color={colors.textSecondary} />
-                </TouchableOpacity>
-              </Link>
-            </View>
-          </View>
+          <Text style={commonStyles.title}>Anwesenheit</Text>
           <Text style={commonStyles.textSecondary}>
             Schüler Check-in & Check-out System
           </Text>
@@ -209,7 +195,7 @@ export default function MainScreen() {
           </View>
         )}
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );
