@@ -7,9 +7,10 @@ import Icon from './Icon';
 
 interface AttendanceCardProps {
   record: AttendanceRecord;
+  showDuration?: boolean;
 }
 
-export default function AttendanceCard({ record }: AttendanceCardProps) {
+export default function AttendanceCard({ record, showDuration = false }: AttendanceCardProps) {
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('de-DE', {
       hour: '2-digit',
@@ -31,6 +32,33 @@ export default function AttendanceCard({ record }: AttendanceCardProps) {
 
   const getStatusIcon = () => {
     return record.status === 'checked-in' ? 'checkmark-circle' : 'checkmark-circle-outline';
+  };
+
+  const calculateDuration = (): string => {
+    if (!record.checkOutTime) {
+      // Calculate current duration for active check-ins
+      const now = new Date();
+      const duration = now.getTime() - record.checkInTime.getTime();
+      const minutes = Math.floor(duration / (1000 * 60));
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      
+      if (hours > 0) {
+        return `${hours}h ${remainingMinutes}m (aktiv)`;
+      }
+      return `${minutes}m (aktiv)`;
+    } else {
+      // Calculate completed duration
+      const duration = record.checkOutTime.getTime() - record.checkInTime.getTime();
+      const minutes = Math.floor(duration / (1000 * 60));
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      
+      if (hours > 0) {
+        return `${hours}h ${remainingMinutes}m`;
+      }
+      return `${minutes}m`;
+    }
   };
 
   return (
@@ -63,6 +91,15 @@ export default function AttendanceCard({ record }: AttendanceCardProps) {
             <Icon name="exit-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.detailText}>
               Check-out: {formatTime(record.checkOutTime)} ({formatDate(record.checkOutTime)})
+            </Text>
+          </View>
+        )}
+
+        {showDuration && (
+          <View style={styles.detailRow}>
+            <Icon name="hourglass-outline" size={16} color={colors.primary} />
+            <Text style={[styles.detailText, { color: colors.primary, fontWeight: '500' }]}>
+              Dauer: {calculateDuration()}
             </Text>
           </View>
         )}
