@@ -1,17 +1,16 @@
 
 import React, { useState } from 'react';
-import { Text, View, ScrollView, Alert } from 'react-native';
+import { Text, View, Alert, Image } from 'react-native';
 import { commonStyles, colors } from '../styles/commonStyles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAttendance } from '../hooks/useAttendance';
 import QRScanner from '../components/QRScanner';
-import AttendanceCard from '../components/AttendanceCard';
 import Button from '../components/Button';
 
 export default function MainScreen() {
   const [showScanner, setShowScanner] = useState(false);
   const [scanMode, setScanMode] = useState<'checkin' | 'checkout'>('checkin');
-  const { checkIn, checkOut, getActiveCheckIns, getTodaysRecords, loading } = useAttendance();
+  const { checkIn, checkOut, getActiveCheckIns, loading } = useAttendance();
 
   const handleScan = async (data: string) => {
     try {
@@ -90,9 +89,6 @@ export default function MainScreen() {
     setShowScanner(true);
   };
 
-  const activeCheckIns = getActiveCheckIns();
-  const todaysRecords = getTodaysRecords();
-
   if (showScanner) {
     return (
       <QRScanner
@@ -106,7 +102,7 @@ export default function MainScreen() {
   if (loading) {
     return (
       <SafeAreaView style={commonStyles.container}>
-        <View style={commonStyles.content}>
+        <View style={[commonStyles.content, { justifyContent: 'center', alignItems: 'center' }]}>
           <Text style={commonStyles.text}>Lade Anwesenheitsdaten...</Text>
         </View>
       </SafeAreaView>
@@ -115,111 +111,94 @@ export default function MainScreen() {
 
   return (
     <SafeAreaView style={commonStyles.container}>
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={{ padding: 20, alignItems: 'center' }}>
-          <Text style={commonStyles.title}>Anwesenheit</Text>
-          <Text style={commonStyles.textSecondary}>
+      <View style={[commonStyles.content, { justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }]}>
+        
+        {/* Logo */}
+        <View style={{ alignItems: 'center', marginBottom: 60 }}>
+          <Image 
+            source={require('../assets/images/natively-dark.png')} 
+            style={{ 
+              width: 120, 
+              height: 120, 
+              marginBottom: 20,
+              borderRadius: 20
+            }} 
+            resizeMode="contain"
+          />
+          <Text style={[commonStyles.title, { textAlign: 'center', marginBottom: 8 }]}>
+            Anwesenheit
+          </Text>
+          <Text style={[commonStyles.textSecondary, { textAlign: 'center' }]}>
             Schüler Check-in & Check-out System
           </Text>
         </View>
 
-        {/* QR Code Format Info */}
-        <View style={[commonStyles.card, { marginHorizontal: 20, marginBottom: 20, backgroundColor: colors.backgroundAlt }]}>
-          <Text style={[commonStyles.text, { fontWeight: '600', marginBottom: 8 }]}>
-            QR-Code Format:
-          </Text>
-          <Text style={[commonStyles.textSecondary, { fontSize: 12, fontFamily: 'monospace' }]}>
-            {`{"studentId": "12345", "firstName": "Max", "lastName": "Mustermann", "location": "Klassenzimmer"}`}
-          </Text>
-        </View>
-
         {/* Action Buttons */}
-        <View style={commonStyles.buttonContainer}>
+        <View style={[commonStyles.buttonContainer, { width: '100%', maxWidth: 300 }]}>
           <Button
-            text="Check-in (QR-Code scannen)"
+            text="Check-in"
             onPress={handleCheckIn}
             style={{
               backgroundColor: colors.success,
-              marginBottom: 12,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-            }}
-            textStyle={{ color: colors.background }}
-          />
-          
-          <Button
-            text="Check-out (QR-Code scannen)"
-            onPress={handleCheckOut}
-            style={{
-              backgroundColor: colors.warning,
               marginBottom: 20,
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 8,
+              paddingVertical: 16,
+              borderRadius: 12,
             }}
-            textStyle={{ color: colors.background }}
+            textStyle={{ 
+              color: colors.background, 
+              fontSize: 18, 
+              fontWeight: '600' 
+            }}
+          />
+          
+          <Button
+            text="Check-out"
+            onPress={handleCheckOut}
+            style={{
+              backgroundColor: colors.error,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 16,
+              borderRadius: 12,
+            }}
+            textStyle={{ 
+              color: colors.background, 
+              fontSize: 18, 
+              fontWeight: '600' 
+            }}
           />
         </View>
 
-        {/* Statistics */}
-        <View style={[commonStyles.card, { marginHorizontal: 20, marginBottom: 20 }]}>
-          <Text style={[commonStyles.subtitle, { marginBottom: 16 }]}>Heute</Text>
-          <View style={commonStyles.row}>
-            <View style={{ alignItems: 'center', flex: 1 }}>
-              <Text style={{ fontSize: 24, fontWeight: '700', color: colors.success }}>
-                {activeCheckIns.length}
-              </Text>
-              <Text style={commonStyles.textSecondary}>Aktiv eingecheckt</Text>
-            </View>
-            <View style={{ alignItems: 'center', flex: 1 }}>
-              <Text style={{ fontSize: 24, fontWeight: '700', color: colors.primary }}>
-                {todaysRecords.length}
-              </Text>
-              <Text style={commonStyles.textSecondary}>Gesamt heute</Text>
-            </View>
-          </View>
+        {/* QR Code Format Info */}
+        <View style={[commonStyles.card, { 
+          marginTop: 40, 
+          backgroundColor: colors.backgroundAlt, 
+          maxWidth: 350,
+          width: '100%'
+        }]}>
+          <Text style={[commonStyles.text, { 
+            fontWeight: '600', 
+            marginBottom: 8, 
+            textAlign: 'left',
+            fontSize: 14
+          }]}>
+            QR-Code Format:
+          </Text>
+          <Text style={[commonStyles.textSecondary, { 
+            fontSize: 11, 
+            fontFamily: 'monospace',
+            textAlign: 'left',
+            lineHeight: 16
+          }]}>
+            {`{"studentId": "12345", "firstName": "Max", "lastName": "Mustermann", "location": "Klassenzimmer"}`}
+          </Text>
         </View>
 
-        {/* Active Check-ins */}
-        {activeCheckIns.length > 0 && (
-          <View style={{ marginBottom: 20 }}>
-            <Text style={[commonStyles.subtitle, { paddingHorizontal: 20, marginBottom: 12 }]}>
-              Aktive Check-ins
-            </Text>
-            {activeCheckIns.map((record) => (
-              <AttendanceCard key={record.id} record={record} />
-            ))}
-          </View>
-        )}
-
-        {/* Today's Records */}
-        {todaysRecords.length > 0 && (
-          <View style={{ marginBottom: 20 }}>
-            <Text style={[commonStyles.subtitle, { paddingHorizontal: 20, marginBottom: 12 }]}>
-              Heutige Einträge
-            </Text>
-            {todaysRecords
-              .sort((a, b) => new Date(b.checkInTime).getTime() - new Date(a.checkInTime).getTime())
-              .map((record) => (
-                <AttendanceCard key={record.id} record={record} />
-              ))}
-          </View>
-        )}
-
-        {todaysRecords.length === 0 && (
-          <View style={[commonStyles.card, { marginHorizontal: 20 }]}>
-            <Text style={commonStyles.textSecondary}>
-              Noch keine Anwesenheitseinträge für heute
-            </Text>
-          </View>
-        )}
-
-        <View style={{ height: 100 }} />
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
