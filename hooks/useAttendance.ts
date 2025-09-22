@@ -98,6 +98,12 @@ export const useAttendance = () => {
     return updatedRecords[recordIndex];
   };
 
+  const deleteAttendanceRecord = async (recordId: string) => {
+    const updatedRecords = attendanceRecords.filter(record => record.id !== recordId);
+    await saveAttendanceRecords(updatedRecords);
+    return true;
+  };
+
   const getActiveCheckIns = () => {
     return attendanceRecords.filter(record => record.status === 'checked-in');
   };
@@ -120,6 +126,7 @@ export const useAttendance = () => {
     checkIn,
     checkOut,
     updateAttendanceTime,
+    deleteAttendanceRecord,
     getActiveCheckIns,
     getTodaysRecords,
     loadAttendanceRecords,

@@ -57,25 +57,33 @@ export const commonStyles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    maxWidth: 800,
-    width: '100%',
+    paddingHorizontal: 0,
+  },
+  header: {
     paddingHorizontal: 20,
+    paddingVertical: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
-    textAlign: 'center',
     color: colors.text,
-    marginBottom: 10
+    marginBottom: 4,
   },
   subtitle: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: colors.textSecondary,
+  },
+  sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    textAlign: 'center',
     color: colors.text,
-    marginBottom: 8
+    marginHorizontal: 20,
+    marginTop: 24,
+    marginBottom: 12,
   },
   text: {
     fontSize: 16,
@@ -115,6 +123,16 @@ export const commonStyles = StyleSheet.create({
     width: '100%',
     boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
     elevation: 2,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: colors.text,
+    backgroundColor: colors.surface,
+    width: '100%',
   },
   row: {
     flexDirection: 'row',

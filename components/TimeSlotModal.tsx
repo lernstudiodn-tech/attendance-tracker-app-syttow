@@ -77,6 +77,34 @@ const styles = StyleSheet.create({
   timeInput: {
     flex: 1,
   },
+  studentInputSection: {
+    marginBottom: 16,
+  },
+  studentInputModeToggle: {
+    flexDirection: 'row',
+    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: 8,
+    padding: 4,
+  },
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  activeToggleButton: {
+    backgroundColor: colors.primary,
+  },
+  toggleButtonText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  activeToggleButtonText: {
+    color: colors.background,
+  },
   studentList: {
     maxHeight: 150,
   },
@@ -116,6 +144,8 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
+  const [customStudentName, setCustomStudentName] = useState('');
+  const [studentInputMode, setStudentInputMode] = useState<'select' | 'custom'>('select');
   const [subject, setSubject] = useState('');
   const [location, setLocation] = useState('');
 
@@ -123,18 +153,36 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
     if (editingTimeSlot) {
       setStartTime(editingTimeSlot.startTime);
       setEndTime(editingTimeSlot.endTime);
-      setSelectedStudentId(editingTimeSlot.studentId || '');
       setSubject(editingTimeSlot.subject || '');
       setLocation(editingTimeSlot.location || '');
+      
+      // Check if the student exists in the students list
+      const existingStudent = students.find(s => s.id === editingTimeSlot.studentId);
+      if (existingStudent) {
+        setSelectedStudentId(editingTimeSlot.studentId || '');
+        setCustomStudentName('');
+        setStudentInputMode('select');
+      } else if (editingTimeSlot.studentName) {
+        // If student name exists but not in the list, use custom mode
+        setSelectedStudentId('');
+        setCustomStudentName(editingTimeSlot.studentName);
+        setStudentInputMode('custom');
+      } else {
+        setSelectedStudentId('');
+        setCustomStudentName('');
+        setStudentInputMode('select');
+      }
     } else {
       // Reset form for new time slot
       setStartTime('09:00');
       setEndTime('10:00');
       setSelectedStudentId('');
+      setCustomStudentName('');
+      setStudentInputMode('select');
       setSubject('');
       setLocation('');
     }
-  }, [editingTimeSlot, visible]);
+  }, [editingTimeSlot, visible, students]);
 
   const handleSave = () => {
     if (!startTime || !endTime) {
@@ -147,14 +195,24 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
       return;
     }
 
-    const selectedStudent = students.find(s => s.id === selectedStudentId);
+    let finalStudentId: string | undefined;
+    let finalStudentName: string | undefined;
+
+    if (studentInputMode === 'select' && selectedStudentId) {
+      const selectedStudent = students.find(s => s.id === selectedStudentId);
+      finalStudentId = selectedStudentId;
+      finalStudentName = selectedStudent?.name;
+    } else if (studentInputMode === 'custom' && customStudentName.trim()) {
+      finalStudentId = undefined;
+      finalStudentName = customStudentName.trim();
+    }
 
     const timeSlotData: Omit<TimeSlot, 'id'> = {
       startTime,
       endTime,
       dayOfWeek,
-      studentId: selectedStudentId || undefined,
-      studentName: selectedStudent?.name || undefined,
+      studentId: finalStudentId,
+      studentName: finalStudentName,
       subject: subject || undefined,
       location: location || undefined,
     };
@@ -217,48 +275,93 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.label}>Schüler auswählen</Text>
-              <ScrollView style={styles.studentList} nestedScrollEnabled>
+              <Text style={styles.label}>Schüler</Text>
+              
+              <View style={styles.studentInputModeToggle}>
                 <TouchableOpacity
                   style={[
-                    styles.studentOption,
-                    !selectedStudentId && styles.selectedStudent,
+                    styles.toggleButton,
+                    studentInputMode === 'select' && styles.activeToggleButton,
                   ]}
-                  onPress={() => setSelectedStudentId('')}
+                  onPress={() => setStudentInputMode('select')}
                 >
-                  <Icon
-                    name={!selectedStudentId ? 'radio-button-on' : 'radio-button-off'}
-                    size={20}
-                    color={colors.primary}
-                  />
-                  <Text style={styles.studentText}>Kein Schüler</Text>
+                  <Text
+                    style={[
+                      styles.toggleButtonText,
+                      studentInputMode === 'select' && styles.activeToggleButtonText,
+                    ]}
+                  >
+                    Auswählen
+                  </Text>
                 </TouchableOpacity>
-                {students.map((student) => (
+                <TouchableOpacity
+                  style={[
+                    styles.toggleButton,
+                    studentInputMode === 'custom' && styles.activeToggleButton,
+                  ]}
+                  onPress={() => setStudentInputMode('custom')}
+                >
+                  <Text
+                    style={[
+                      styles.toggleButtonText,
+                      studentInputMode === 'custom' && styles.activeToggleButtonText,
+                    ]}
+                  >
+                    Eingeben
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {studentInputMode === 'select' ? (
+                <ScrollView style={styles.studentList} nestedScrollEnabled>
                   <TouchableOpacity
-                    key={student.id}
                     style={[
                       styles.studentOption,
-                      selectedStudentId === student.id && styles.selectedStudent,
+                      !selectedStudentId && styles.selectedStudent,
                     ]}
-                    onPress={() => setSelectedStudentId(student.id)}
+                    onPress={() => setSelectedStudentId('')}
                   >
                     <Icon
-                      name={
-                        selectedStudentId === student.id
-                          ? 'radio-button-on'
-                          : 'radio-button-off'
-                      }
+                      name={!selectedStudentId ? 'radio-button-on' : 'radio-button-off'}
                       size={20}
                       color={colors.primary}
                     />
-                    <Text style={styles.studentText}>{student.name}</Text>
+                    <Text style={styles.studentText}>Kein Schüler</Text>
                   </TouchableOpacity>
-                ))}
-              </ScrollView>
+                  {students.map((student) => (
+                    <TouchableOpacity
+                      key={student.id}
+                      style={[
+                        styles.studentOption,
+                        selectedStudentId === student.id && styles.selectedStudent,
+                      ]}
+                      onPress={() => setSelectedStudentId(student.id)}
+                    >
+                      <Icon
+                        name={
+                          selectedStudentId === student.id
+                            ? 'radio-button-on'
+                            : 'radio-button-off'
+                        }
+                        size={20}
+                        color={colors.primary}
+                      />
+                      <Text style={styles.studentText}>{student.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              ) : (
+                <TextInput
+                  style={styles.input}
+                  value={customStudentName}
+                  onChangeText={setCustomStudentName}
+                  placeholder="Schülername eingeben..."
+                />
+              )}
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.label}>Fach (optional)</Text>
+              <Text style={styles.label}>Fach</Text>
               <TextInput
                 style={styles.input}
                 value={subject}
@@ -268,7 +371,7 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.label}>Ort (optional)</Text>
+              <Text style={styles.label}>Ort</Text>
               <TextInput
                 style={styles.input}
                 value={location}
