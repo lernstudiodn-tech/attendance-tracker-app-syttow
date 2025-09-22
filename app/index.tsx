@@ -113,24 +113,17 @@ export default function MainScreen() {
     <SafeAreaView style={commonStyles.container}>
       <View style={[commonStyles.content, { justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }]}>
         
-        {/* Logo */}
+        {/* Lernstudio Logo */}
         <View style={{ alignItems: 'center', marginBottom: 60 }}>
           <Image 
-            source={require('../assets/images/natively-dark.png')} 
+            source={require('../assets/images/345a74c6-6025-4496-82e3-b6f8a39926eb.png')} 
             style={{ 
-              width: 120, 
+              width: 280, 
               height: 120, 
-              marginBottom: 20,
-              borderRadius: 20
+              marginBottom: 30,
             }} 
             resizeMode="contain"
           />
-          <Text style={[commonStyles.title, { textAlign: 'center', marginBottom: 8 }]}>
-            Anwesenheit
-          </Text>
-          <Text style={[commonStyles.textSecondary, { textAlign: 'center' }]}>
-            Schüler Check-in & Check-out System
-          </Text>
         </View>
 
         {/* Action Buttons */}
@@ -171,31 +164,6 @@ export default function MainScreen() {
               fontWeight: '600' 
             }}
           />
-        </View>
-
-        {/* QR Code Format Info */}
-        <View style={[commonStyles.card, { 
-          marginTop: 40, 
-          backgroundColor: colors.backgroundAlt, 
-          maxWidth: 350,
-          width: '100%'
-        }]}>
-          <Text style={[commonStyles.text, { 
-            fontWeight: '600', 
-            marginBottom: 8, 
-            textAlign: 'left',
-            fontSize: 14
-          }]}>
-            QR-Code Format:
-          </Text>
-          <Text style={[commonStyles.textSecondary, { 
-            fontSize: 11, 
-            fontFamily: 'monospace',
-            textAlign: 'left',
-            lineHeight: 16
-          }]}>
-            {`{"studentId": "12345", "firstName": "Max", "lastName": "Mustermann", "location": "Klassenzimmer"}`}
-          </Text>
         </View>
 
       </View>
