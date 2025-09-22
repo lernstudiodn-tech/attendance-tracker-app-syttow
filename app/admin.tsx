@@ -10,6 +10,8 @@ import Icon from '../components/Icon';
 import Button from '../components/Button';
 import AdminStatsCard from '../components/AdminStatsCard';
 import DateFilter from '../components/DateFilter';
+import StudentOverviewChart from '../components/StudentOverviewChart';
+import PDFExportButton from '../components/PDFExportButton';
 
 export default function AdminScreen() {
   const { isAuthenticated, login, logout } = useAdminAuth();
@@ -101,6 +103,20 @@ export default function AdminScreen() {
     };
   };
 
+  // Get chart data
+  const getChartData = () => {
+    const uniqueStudents = getUniqueStudents();
+    const totalStudents = uniqueStudents.length;
+    const activeStudents = attendanceRecords.filter(r => r.status === 'checked-in').length;
+    const completedSessions = attendanceRecords.filter(r => r.status === 'checked-out').length;
+
+    return {
+      totalStudents,
+      activeStudents,
+      completedSessions,
+    };
+  };
+
   if (!isAuthenticated) {
     return (
       <SafeAreaView style={commonStyles.container}>
@@ -165,6 +181,7 @@ export default function AdminScreen() {
   const filteredRecords = getFilteredRecords();
   const statistics = getStatistics();
   const uniqueStudents = getUniqueStudents();
+  const chartData = getChartData();
 
   return (
     <SafeAreaView style={commonStyles.container}>
@@ -180,6 +197,15 @@ export default function AdminScreen() {
           <TouchableOpacity onPress={handleLogout} style={{ padding: 8 }}>
             <Icon name="log-out" size={24} color={colors.error} />
           </TouchableOpacity>
+        </View>
+
+        {/* Student Overview Chart */}
+        <View style={{ paddingHorizontal: 20 }}>
+          <StudentOverviewChart
+            totalStudents={chartData.totalStudents}
+            activeStudents={chartData.activeStudents}
+            completedSessions={chartData.completedSessions}
+          />
         </View>
 
         {/* Statistics Cards */}
@@ -248,15 +274,91 @@ export default function AdminScreen() {
           </View>
         </View>
 
+        {/* PDF Export Section */}
+        {selectedStudent !== 'all' && (
+          <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+            <View style={[commonStyles.card, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
+              <View style={{ flex: 1 }}>
+                <Text style={[commonStyles.text, { fontWeight: '600' }]}>
+                  PDF Export
+                </Text>
+                <Text style={[commonStyles.textSecondary, { fontSize: 12 }]}>
+                  Stundenübersicht als PDF speichern und teilen
+                </Text>
+              </View>
+              <PDFExportButton
+                studentId={selectedStudent}
+                studentName={uniqueStudents.find(s => s.id === selectedStudent)?.name || ''}
+                records={filteredRecords}
+                selectedDate={selectedDate}
+              />
+            </View>
+          </View>
+        )}
+
         {/* Records List */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
-          <Text style={[commonStyles.subtitle, { textAlign: 'left', marginBottom: 16 }]}>
-            Anwesenheitseinträge ({filteredRecords.length})
-          </Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <Text style={[commonStyles.subtitle, { textAlign: 'left' }]}>
+              Anwesenheitseinträge ({filteredRecords.length})
+            </Text>
+            
+            {/* Bulk PDF Export for all students */}
+            {selectedStudent === 'all' && uniqueStudents.length > 0 && (
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: colors.primary,
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                  borderRadius: 8,
+                }}
+                onPress={() => {
+                  Alert.alert(
+                    'PDF Export',
+                    'Möchten Sie für alle Schüler einzelne PDFs erstellen?',
+                    [
+                      { text: 'Abbrechen', style: 'cancel' },
+                      {
+                        text: 'Ja',
+                        onPress: () => {
+                          uniqueStudents.forEach(student => {
+                            const studentRecords = filteredRecords.filter(r => r.studentId === student.id);
+                            if (studentRecords.length > 0) {
+                              console.log(`Exporting PDF for ${student.name}`);
+                              // This would trigger individual PDF exports
+                              // For now, we'll show an alert
+                            }
+                          });
+                          Alert.alert('Info', 'Bulk-Export wird in einer zukünftigen Version verfügbar sein.');
+                        }
+                      }
+                    ]
+                  );
+                }}
+              >
+                <Icon name="documents" size={14} color={colors.background} />
+                <Text style={{ color: colors.background, fontSize: 12, fontWeight: '600', marginLeft: 4 }}>
+                  Alle PDFs
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
           
           {filteredRecords.length > 0 ? (
             filteredRecords.map((record) => (
-              <AttendanceCard key={record.id} record={record} showDuration />
+              <View key={record.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                <View style={{ flex: 1 }}>
+                  <AttendanceCard record={record} showDuration />
+                </View>
+                <PDFExportButton
+                  studentId={record.studentId}
+                  studentName={record.studentName}
+                  records={attendanceRecords.filter(r => r.studentId === record.studentId)}
+                  selectedDate={selectedDate}
+                />
+              </View>
             ))
           ) : (
             <View style={commonStyles.card}>
