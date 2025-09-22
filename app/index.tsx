@@ -1,11 +1,30 @@
 
 import React, { useState } from 'react';
-import { Text, View, Alert, Image } from 'react-native';
+import { Text, View, Alert, Image, StyleSheet } from 'react-native';
 import { commonStyles, colors } from '../styles/commonStyles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAttendance } from '../hooks/useAttendance';
 import QRScanner from '../components/QRScanner';
 import Button from '../components/Button';
+
+const styles = StyleSheet.create({
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    marginBottom: 20,
+    minHeight: 64,
+    width: '100%',
+  },
+  buttonText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.background,
+  },
+});
 
 export default function MainScreen() {
   const [showScanner, setShowScanner] = useState(false);
@@ -127,42 +146,25 @@ export default function MainScreen() {
         </View>
 
         {/* Action Buttons */}
-        <View style={[commonStyles.buttonContainer, { width: '100%', maxWidth: 300 }]}>
+        <View style={[commonStyles.buttonContainer, { width: '100%', maxWidth: 320 }]}>
           <Button
             text="Check-in"
             onPress={handleCheckIn}
-            style={{
-              backgroundColor: colors.success,
-              marginBottom: 20,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingVertical: 16,
-              borderRadius: 12,
-            }}
-            textStyle={{ 
-              color: colors.background, 
-              fontSize: 18, 
-              fontWeight: '600' 
-            }}
+            style={[
+              styles.actionButton,
+              { backgroundColor: colors.success }
+            ]}
+            textStyle={styles.buttonText}
           />
           
           <Button
             text="Check-out"
             onPress={handleCheckOut}
-            style={{
-              backgroundColor: colors.error,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingVertical: 16,
-              borderRadius: 12,
-            }}
-            textStyle={{ 
-              color: colors.background, 
-              fontSize: 18, 
-              fontWeight: '600' 
-            }}
+            style={[
+              styles.actionButton,
+              { backgroundColor: colors.error, marginBottom: 0 }
+            ]}
+            textStyle={styles.buttonText}
           />
         </View>
 
