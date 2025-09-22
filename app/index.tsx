@@ -17,20 +17,33 @@ export default function MainScreen() {
     try {
       console.log('Processing QR scan:', data);
       
-      // Parse QR code data (expecting JSON format)
+      // Parse QR code data (expecting JSON format with firstName and lastName)
       let qrData;
       try {
         qrData = JSON.parse(data);
       } catch {
-        // If not JSON, treat as simple student ID
-        qrData = {
-          studentId: data,
-          studentName: `Schüler ${data}`,
-          location: 'Klassenzimmer'
-        };
+        // If not JSON, treat as simple student ID and ask for name
+        Alert.alert(
+          'QR-Code Format',
+          'Der QR-Code enthält keine Namensinformationen. Bitte verwenden Sie einen QR-Code mit folgendem Format:\n\n{"studentId": "12345", "firstName": "Max", "lastName": "Mustermann", "location": "Klassenzimmer"}'
+        );
+        setShowScanner(false);
+        return;
       }
 
-      const { studentId, studentName, location } = qrData;
+      const { studentId, firstName, lastName, location } = qrData;
+
+      // Validate required fields
+      if (!studentId || !firstName || !lastName) {
+        Alert.alert(
+          'Unvollständige Daten',
+          'Der QR-Code muss studentId, firstName und lastName enthalten.'
+        );
+        setShowScanner(false);
+        return;
+      }
+
+      const studentName = `${firstName} ${lastName}`;
 
       if (scanMode === 'checkin') {
         // Check if student is already checked in
@@ -43,7 +56,7 @@ export default function MainScreen() {
             `${studentName} ist bereits eingecheckt seit ${existingCheckIn.checkInTime.toLocaleTimeString('de-DE')}`
           );
         } else {
-          await checkIn(studentId, studentName, location);
+          await checkIn(studentId, firstName, lastName, location || 'Klassenzimmer');
           Alert.alert(
             'Check-in erfolgreich',
             `${studentName} wurde erfolgreich eingecheckt`
@@ -108,6 +121,16 @@ export default function MainScreen() {
           <Text style={commonStyles.title}>Anwesenheit</Text>
           <Text style={commonStyles.textSecondary}>
             Schüler Check-in & Check-out System
+          </Text>
+        </View>
+
+        {/* QR Code Format Info */}
+        <View style={[commonStyles.card, { marginHorizontal: 20, marginBottom: 20, backgroundColor: colors.backgroundAlt }]}>
+          <Text style={[commonStyles.text, { fontWeight: '600', marginBottom: 8 }]}>
+            QR-Code Format:
+          </Text>
+          <Text style={[commonStyles.textSecondary, { fontSize: 12, fontFamily: 'monospace' }]}>
+            {`{"studentId": "12345", "firstName": "Max", "lastName": "Mustermann", "location": "Klassenzimmer"}`}
           </Text>
         </View>
 

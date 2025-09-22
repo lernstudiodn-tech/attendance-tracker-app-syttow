@@ -21,6 +21,9 @@ export const useAttendance = () => {
           ...record,
           checkInTime: new Date(record.checkInTime),
           checkOutTime: record.checkOutTime ? new Date(record.checkOutTime) : undefined,
+          // Ensure backward compatibility with old records
+          firstName: record.firstName || record.studentName?.split(' ')[0] || 'Unbekannt',
+          lastName: record.lastName || record.studentName?.split(' ').slice(1).join(' ') || 'Unbekannt',
         }));
         setAttendanceRecords(records);
       }
@@ -40,11 +43,14 @@ export const useAttendance = () => {
     }
   };
 
-  const checkIn = async (studentId: string, studentName: string, location: string) => {
+  const checkIn = async (studentId: string, firstName: string, lastName: string, location: string) => {
+    const studentName = `${firstName} ${lastName}`;
     const newRecord: AttendanceRecord = {
       id: Date.now().toString(),
       studentId,
       studentName,
+      firstName,
+      lastName,
       checkInTime: new Date(),
       location,
       status: 'checked-in',
@@ -75,6 +81,23 @@ export const useAttendance = () => {
     return updatedRecords[recordIndex];
   };
 
+  const updateAttendanceTime = async (recordId: string, field: 'checkInTime' | 'checkOutTime', newTime: Date) => {
+    const recordIndex = attendanceRecords.findIndex(record => record.id === recordId);
+    
+    if (recordIndex === -1) {
+      throw new Error('Anwesenheitseintrag nicht gefunden');
+    }
+
+    const updatedRecords = [...attendanceRecords];
+    updatedRecords[recordIndex] = {
+      ...updatedRecords[recordIndex],
+      [field]: newTime,
+    };
+
+    await saveAttendanceRecords(updatedRecords);
+    return updatedRecords[recordIndex];
+  };
+
   const getActiveCheckIns = () => {
     return attendanceRecords.filter(record => record.status === 'checked-in');
   };
@@ -96,6 +119,7 @@ export const useAttendance = () => {
     loading,
     checkIn,
     checkOut,
+    updateAttendanceTime,
     getActiveCheckIns,
     getTodaysRecords,
     loadAttendanceRecords,

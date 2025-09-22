@@ -15,7 +15,7 @@ import PDFExportButton from '../components/PDFExportButton';
 
 export default function AdminScreen() {
   const { isAuthenticated, login, logout } = useAdminAuth();
-  const { attendanceRecords, loading } = useAttendance();
+  const { attendanceRecords, updateAttendanceTime, loading } = useAttendance();
   const [password, setPassword] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedStudent, setSelectedStudent] = useState<string>('all');
@@ -33,6 +33,22 @@ export default function AdminScreen() {
   const handleLogout = () => {
     logout();
     Alert.alert('Abgemeldet', 'Sie wurden erfolgreich abgemeldet');
+  };
+
+  const handleTimeCorrection = async (recordId: string, field: 'checkInTime' | 'checkOutTime', newTime: Date) => {
+    try {
+      await updateAttendanceTime(recordId, field, newTime);
+      Alert.alert(
+        'Zeit korrigiert',
+        `Die ${field === 'checkInTime' ? 'Check-in' : 'Check-out'}-Zeit wurde erfolgreich auf ${newTime.toLocaleTimeString('de-DE')} geändert.`
+      );
+    } catch (error) {
+      console.log('Error updating time:', error);
+      Alert.alert(
+        'Fehler',
+        error instanceof Error ? error.message : 'Fehler beim Aktualisieren der Zeit'
+      );
+    }
   };
 
   // Filter records based on selected date and student
@@ -191,12 +207,28 @@ export default function AdminScreen() {
           <View>
             <Text style={commonStyles.title}>Admin Dashboard</Text>
             <Text style={commonStyles.textSecondary}>
-              Anwesenheits-Übersicht
+              Anwesenheits-Übersicht & Zeitkorrektur
             </Text>
           </View>
           <TouchableOpacity onPress={handleLogout} style={{ padding: 8 }}>
             <Icon name="log-out" size={24} color={colors.error} />
           </TouchableOpacity>
+        </View>
+
+        {/* Time Correction Info */}
+        <View style={[commonStyles.card, { marginHorizontal: 20, marginBottom: 20, backgroundColor: colors.backgroundAlt }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <Icon name="time-outline" size={20} color={colors.primary} />
+            <Text style={[commonStyles.text, { fontWeight: '600', marginLeft: 8 }]}>
+              Zeitkorrektur verfügbar
+            </Text>
+          </View>
+          <Text style={[commonStyles.textSecondary, { fontSize: 12 }]}>
+            Klicken Sie auf das Bearbeiten-Symbol neben den Zeiten, um Check-in/Check-out Zeiten zu korrigieren.
+          </Text>
+          <Text style={[commonStyles.textSecondary, { fontSize: 12, marginTop: 4 }]}>
+            Verfügbare Korrekturen: Volle Stunde, Viertel nach, Halb, Viertel vor
+          </Text>
         </View>
 
         {/* Student Overview Chart */}
@@ -350,7 +382,12 @@ export default function AdminScreen() {
             filteredRecords.map((record) => (
               <View key={record.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                 <View style={{ flex: 1 }}>
-                  <AttendanceCard record={record} showDuration />
+                  <AttendanceCard 
+                    record={record} 
+                    showDuration 
+                    isAdminMode={true}
+                    onTimeCorrection={handleTimeCorrection}
+                  />
                 </View>
                 <PDFExportButton
                   studentId={record.studentId}

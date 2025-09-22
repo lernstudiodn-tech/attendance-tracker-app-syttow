@@ -105,8 +105,11 @@ export default function QRScanner({ onScan, onClose, title }: QRScannerProps) {
       </View>
 
       <View style={styles.instructions}>
-        <Text style={[commonStyles.text, { textAlign: 'center', marginBottom: 16 }]}>
+        <Text style={[commonStyles.text, { textAlign: 'center', marginBottom: 8 }]}>
           Richten Sie die Kamera auf den QR-Code des Schülers
+        </Text>
+        <Text style={[commonStyles.textSecondary, { textAlign: 'center', fontSize: 12, marginBottom: 16 }]}>
+          Der QR-Code sollte Vor- und Nachname des Schülers enthalten
         </Text>
         {scanned && (
           <TouchableOpacity
