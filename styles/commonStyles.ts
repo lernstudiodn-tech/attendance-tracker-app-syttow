@@ -3,6 +3,7 @@ import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 
 export const colors = {
   primary: '#007AFF',    // iOS Blue
+  primaryLight: '#E3F2FD', // Light blue for selections
   secondary: '#5856D6',  // Purple
   accent: '#34C759',     // Green
   background: '#FFFFFF', // White background for light theme
@@ -16,6 +17,7 @@ export const colors = {
   success: '#34C759',    // Green
   warning: '#FF9500',    // Orange
   error: '#FF3B30',      // Red
+  shadow: '#000000',     // Shadow color
 };
 
 export const buttonStyles = StyleSheet.create({

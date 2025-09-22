@@ -62,7 +62,7 @@ export default function RootLayout() {
               height: Platform.OS === 'ios' ? 90 : 70,
             },
             tabBarActiveTintColor: colors.primary,
-            tabBarInactiveTintColor: colors.textSecondary,
+            tabBarInactiveTintColor: colors.text,
             tabBarLabelStyle: {
               fontSize: 12,
               fontWeight: '500',
@@ -76,6 +76,15 @@ export default function RootLayout() {
               title: 'Startbildschirm',
               tabBarIcon: ({ color, size }) => (
                 <Icon name="home" size={size} color={color} />
+              ),
+            }}
+          />
+          <Tabs.Screen
+            name="timetable"
+            options={{
+              title: 'Stundenplan',
+              tabBarIcon: ({ color, size }) => (
+                <Icon name="calendar" size={size} color={color} />
               ),
             }}
           />
